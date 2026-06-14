@@ -138,4 +138,4 @@ See [`requirements.txt`](requirements.txt) for the full list. Main libraries:
 
 ## 9. Author
 
-Developed by **Pedro** as part of a Bioinformatics project at FCUP.
+Developed by **Pedro Afonso** as part of a Bioinformatics project at FCUP.
