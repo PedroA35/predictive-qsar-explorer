@@ -1,59 +1,141 @@
-# Predictive Therapeutic Target Explorer & QSAR Platform
+# 🧬 Predictive Therapeutic Target & QSAR Explorer
 
-This repository features a scalable, Python-driven Cheminformatics web platform designed to perform virtual screening of small molecular compounds. By leveraging Machine Learning models, the application predicts the biological activity ($IC_{50}$) of input chemical structures against specific therapeutic targets.
+A web-based cheminformatics application that predicts the biological activity of chemical molecules against multiple therapeutic targets using machine learning (QSAR modelling).
 
-The architecture is built to be completely modular, allowing the dynamic loading of models for multiple enzymes. The initial pipeline has been successfully validated and integrated using **Thrombin (ChEMBL ID: CHEMBL204)** as the primary target baseline.
-
----
-
-## 🚀 Key Features
-
-* **Dual-Input Mode:** Look up chemical structures by compound name/synonym via the PubChem API or input SMILES strings directly.
-* **Real-time SMILES Validation:** Automated parsing, verification, and sanitization of chemical structures using the RDKit library.
-* **Molecular Vectorization:** Transformation of SMILES strings into numeric representations via *Morgan Fingerprints* (Radius 2, 2048 bits).
-* **Intelligent Bioactivity Prediction:** An intuitive graphical user interface (GUI) that consumes pre-trained serialization models to classify compounds as Active or Inactive.
-* **Scalable Architecture:** Built-in support to dynamically switch between different enzyme models through a central target selection dropdown menu.
+Built with **Streamlit**, **RDKit**, and **scikit-learn / XGBoost**.
 
 ---
 
-## 📊 Methodology & Data Pipeline
+## Features
 
-The project follows a rigorous data science workflow split into two main building blocks:
+- **Molecule search** by common name (via PubChem API) or SMILES string
+- **2D structure visualisation** with an interactive legend
+- **Single-target prediction** — detailed activity prediction with confidence score
+- **Multi-target comparison** — side-by-side prediction table across all available targets
+- **Four therapeutic targets** supported out of the box:
 
-### 1. Data Engineering & Model Training (`notebooks/`)
-* **Data Retrieval:** Automated mining of bioactivity ($IC_{50}$) records using the official ChEMBL API client.
-* **Data Curation & Curation:** Comprehensive noise filtering, handling of duplicate compounds, removal of invalid SMILES, and unit standardisation (normalization to nM). The final curated baseline dataset yielded **2,260 unique molecules** for Thrombin.
-* **Activity Labelling:** Binary classification based on the standard literature threshold. Compounds with an $IC_{50} < 10\,\mu\text{M}$ are classified as **Active** (1), while the rest are labelled **Inactive** (0).
-* **Model Exploration:** Implementation and optimization of decision-tree-based algorithms specifically tuned to overcome the native class imbalance of biological datasets. Three approaches were trained and compared:
-  * Baseline Gradient Boosting
-  * Tuned Random Forest (with balanced class weights)
-  * XGBoost (optimized using `scale_pos_weight`)
+| Target | ChEMBL ID | Disease Area | Model |
+|--------|-----------|--------------|-------|
+| Thrombin | CHEMBL204 | Cardiovascular / Thrombosis | RF |
+| BACE-1 | CHEMBL4822 | Alzheimer's Disease | GB |
+| CDK2 | CHEMBL301 | Cancer (Cell Cycle) | RF |
+| EGFR | CHEMBL203 | Cancer (Growth Factor) | RF |
 
-### 2. Streamlit Web Deployment (`app.py`)
-* The frontend web application is developed entirely in Python using **Streamlit**, avoiding heavy web frameworks or external JavaScript/HTML dependencies.
-* Asynchronous consumption of the optimized classifier loaded via serialized `joblib` files (`.pkl`), turning raw structural data into immediate binary predictions.
-
----
-
-## 📈 Model Performance (Thrombin Baseline)
-
-The models were evaluated on an independent, stratified test set. The top-performing configuration was saved as `model_thrombin.pkl`.
-
-* **Selected Architecture:** [Insert the winning model name here, e.g., XGBoost / Random Forest]
-* **G-Mean Score:** [Insert your value here from the notebook, e.g., 0.84]
-* **F1-Score (Active Class):** [Insert your value here from the notebook, e.g., 0.76]
-* **PR-AUC:** [Insert your value here from the notebook, e.g., 0.81]
-
-> *Note: Detailed confusion matrices, ROC curves, and Precision-Recall evaluations can be directly reviewed and reproduced inside the training notebook.*
+> RF = Random Forest · GB = Gradient Boosting
 
 ---
 
-## 🛠️ Local Installation & Usage
+## How It Works
 
-### Prerequisites
-Make sure you have Python installed on your local machine. Using a virtual environment (such as `venv` or `conda`) is highly recommended.
+1. The user enters a molecule name or SMILES string
+2. If a name is provided, the app queries **PubChem** to retrieve the canonical SMILES
+3. **RDKit** generates Morgan Fingerprints (radius=2, 2048 bits) from the SMILES
+4. Pre-trained ML models predict activity (Active / Inactive) for each target
+5. Results are displayed with predicted probability and confidence bar
+
+---
+
+## Project Structure
+
+```
+qsar-explorer/
+│
+├── app.py                    # Streamlit application
+├── requirements.txt          # Python dependencies
+│
+├── models/
+│   ├── model_thrombin.pkl    # Trained model — Thrombin
+│   ├── model_bace1.pkl       # Trained model — BACE-1
+│   ├── model_cdk2.pkl        # Trained model — CDK2
+│   └── model_egfr.pkl        # Trained model — EGFR
+│
+└── notebooks/
+    └── qsar_training.ipynb   # Full training pipeline for all targets
+```
+
+---
+
+## Getting Started
 
 ### 1. Clone the repository
+
 ```bash
-git clone [https://github.com/PedroA35/predictive-qsar-explorer.git](https://github.com/PedroA35/predictive-qsar-explorer.git)
-cd predictive-qsar-explorer
+git clone https://github.com/your-username/qsar-explorer.git
+cd qsar-explorer
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the app
+
+```bash
+streamlit run app.py
+```
+
+The app opens automatically at `http://localhost:8501`.
+
+> **Note:** The pre-trained `.pkl` model files must be present in the `models/` folder. See the section below if you want to retrain them.
+
+---
+
+## Retraining the Models
+
+All models can be retrained from scratch using the notebook `notebooks/qsar_training.ipynb`.
+
+1. Open the notebook in Jupyter
+2. Set `ACTIVE_TARGET` to the desired target (`"thrombin"`, `"bace1"`, `"cdk2"`, or `"egfr"`)
+3. Run all cells — the best model is saved automatically to `models/`
+4. Repeat for each target
+
+The pipeline downloads bioactivity data (IC₅₀) directly from **ChEMBL**, cleans the dataset, generates Morgan Fingerprints, and compares three models (Gradient Boosting, Tuned Random Forest, XGBoost) before saving the best one.
+
+---
+
+## Methodology
+
+### Data
+- Bioactivity data (IC₅₀) downloaded from [ChEMBL](https://www.ebi.ac.uk/chembl/)
+- Molecules labelled as **Active** (IC₅₀ < 10 µM) or **Inactive** (IC₅₀ ≥ 10 µM)
+- Duplicates removed by taking the median IC₅₀ per molecule
+
+### Features
+- **Morgan Fingerprints** (radius=2, 2048 bits) generated with RDKit
+- Captures circular substructure patterns around each atom
+
+### Models
+- **Baseline:** Gradient Boosting Classifier
+- **Tuned RF:** Random Forest with `class_weight="balanced"` + RandomizedSearchCV
+- **XGBoost:** with `scale_pos_weight` to handle class imbalance + RandomizedSearchCV
+- Best model selected automatically by ROC-AUC on the test set
+
+---
+
+## Interpretation
+
+- **Active** → predicted IC₅₀ < 10 µM — the molecule is likely to inhibit the target at pharmacologically relevant concentrations
+- **Inactive** → predicted IC₅₀ ≥ 10 µM — low predicted potency for this target
+- **P(active) %** → model confidence in the Active prediction
+- Results are **computational predictions** and should always be validated experimentally
+
+---
+
+## Dependencies
+
+See [`requirements.txt`](requirements.txt) for the full list. Main libraries:
+
+- [Streamlit](https://streamlit.io/) — web interface
+- [RDKit](https://www.rdkit.org/) — cheminformatics and fingerprint generation
+- [scikit-learn](https://scikit-learn.org/) — machine learning models
+- [XGBoost](https://xgboost.readthedocs.io/) — gradient boosting
+- [ChEMBL webresource client](https://github.com/chembl/chembl_webresource_client) — bioactivity data
+- [PubChem API](https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest) — molecule name resolution
+
+---
+
+## Author
+
+Developed by **Pedro** as part of a Bioinformatics project at FCUP.
