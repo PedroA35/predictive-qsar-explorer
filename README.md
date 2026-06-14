@@ -25,7 +25,7 @@ Built with **Streamlit**, **RDKit**, and **scikit-learn / XGBoost**.
 
 ---
 
-## How It Works
+## 2. How It Works
 
 1. The user enters a molecule name or SMILES string
 2. If a name is provided, the app queries **PubChem** to retrieve the canonical SMILES
@@ -35,7 +35,7 @@ Built with **Streamlit**, **RDKit**, and **scikit-learn / XGBoost**.
 
 ---
 
-## Project Structure
+## 3. Project Structure
 
 ```
 qsar-explorer/
@@ -55,22 +55,22 @@ qsar-explorer/
 
 ---
 
-## Getting Started
+## 4. Getting Started
 
-### 1. Clone the repository
+### 4.1. Clone the repository
 
 ```bash
 git clone https://github.com/PedroA35/predictive-qsar-explorer.git
 cd qsar-explorer
 ```
 
-### 2. Install dependencies
+### 4.2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run the app
+### 4.3. Run the app
 
 ```bash
 streamlit run app.py
@@ -82,7 +82,7 @@ The app opens automatically at `http://localhost:8501`.
 
 ---
 
-## Retraining the Models
+## 5. Retraining the Models
 
 All models can be retrained from scratch using the notebook `notebooks/qsar_training.ipynb`.
 
@@ -95,7 +95,7 @@ The pipeline downloads bioactivity data (IC₅₀) directly from **ChEMBL**, cle
 
 ---
 
-## Methodology
+## 6. Methodology
 
 ### Data
 - Bioactivity data (IC₅₀) downloaded from [ChEMBL](https://www.ebi.ac.uk/chembl/)
@@ -114,7 +114,7 @@ The pipeline downloads bioactivity data (IC₅₀) directly from **ChEMBL**, cle
 
 ---
 
-## Interpretation
+## 7. Interpretation
 
 - **Active** → predicted IC₅₀ < 10 µM — the molecule is likely to inhibit the target at pharmacologically relevant concentrations
 - **Inactive** → predicted IC₅₀ ≥ 10 µM — low predicted potency for this target
@@ -123,7 +123,7 @@ The pipeline downloads bioactivity data (IC₅₀) directly from **ChEMBL**, cle
 
 ---
 
-## Dependencies
+## 8. Dependencies
 
 See [`requirements.txt`](requirements.txt) for the full list. Main libraries:
 
@@ -136,6 +136,6 @@ See [`requirements.txt`](requirements.txt) for the full list. Main libraries:
 
 ---
 
-## Author
+## 9. Author
 
 Developed by **Pedro** as part of a Bioinformatics project at FCUP.
