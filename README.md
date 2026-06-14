@@ -6,7 +6,7 @@ Built with **Streamlit**, **RDKit**, and **scikit-learn / XGBoost**.
 
 ---
 
-## Features
+## 1. Features
 
 - **Molecule search** by common name (via PubChem API) or SMILES string
 - **2D structure visualisation** with an interactive legend
